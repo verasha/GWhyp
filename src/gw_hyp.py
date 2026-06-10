@@ -2,7 +2,7 @@ from constants import *
 import numpy as np
 from numpy import sin, cos, cosh, sqrt, pi, arctan, tanh, sinh
 from gw_functions import phiv, omg, get_M, rx, phitx, rtx
-from hypmik3pn import get_u_hat
+from hypmik3pn import get_u_hat, get_u_v2
 from scipy.integrate import cumulative_trapezoid
 import antenna_pattern as ap
 
@@ -21,7 +21,7 @@ def get_hyp_waveform(M,q,et,n0,t,inc,distance,phi0='None',delta=0,chi_A=0,chi_S=
     
     l=n0*t
     x0=(M*tsun*n0)**(2/3)
-    u=get_u_hat(l,et)
+    u=get_u_v2(l,et,η,x0,3,delta=delta,chi_A=chi_A,chi_S=chi_S)
 
     
     # phi=phiv(η,et,u,x0,order=3)

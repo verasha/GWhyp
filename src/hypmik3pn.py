@@ -90,11 +90,14 @@ def get_u(l,et,eta,b1,order):
         return a0+a2+a3
 
 
-def get_u_v2(l,et,eta,x,order):
+def get_u_v2(l,et,eta,x,order,delta=0,chi_A=0,chi_S=0):
     
     U=get_u_hat(l,et)
     
     a0=U
+
+    # NOTE: add 1.5pn
+    a15=2*l*(2*delta*chi_A+(2-eta)*chi_S)/((et**2-1)**(3/2)*(-1+et*cosh(U)))
 
     a2=(1/8*x**2*(24*(-5+2*eta)*arctan(((1+et)/(-1+et))**(1/2)*tanh(1/2*U))*(-1+et*cosh(U
         ))/(et**2-1)**(1/2)+et*(-15+eta)*eta*sinh(U))/(-1+et*cosh(U))**2)
@@ -114,7 +117,8 @@ def get_u_v2(l,et,eta,x,order):
     if order==2:
         return a0+a2
     if order==3:
-        return a0+a2+a3
+        # NOTE: im adding 1.5pn term here for now
+        return a0+a15*x**(3/2)+a2+a3
 
 
 # ls=np.linspace(-l0,l0,1000)
