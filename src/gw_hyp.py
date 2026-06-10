@@ -1,14 +1,14 @@
 from constants import *
 import numpy as np
 from numpy import sin, cos, cosh, sqrt, pi, arctan, tanh, sinh
-from gw_functions import phiv, omg, get_M
+from gw_functions import phiv, omg, get_M, rx, phitx, rtx
 from hypmik3pn import get_u_hat
 from scipy.integrate import cumulative_trapezoid
 import antenna_pattern as ap
 
     
 
-def get_hyp_waveform(M,q,et,n0,t,inc,distance,phi0='None'):
+def get_hyp_waveform(M,q,et,n0,t,inc,distance,phi0='None',delta=0,chi_A=0,chi_S=0,):
     if phi0=='None':
         phi0=0
 
@@ -24,17 +24,25 @@ def get_hyp_waveform(M,q,et,n0,t,inc,distance,phi0='None'):
     u=get_u_hat(l,et)
 
     
-    phi=phiv(η,et,u,x0,order=3)
-    r1=(-1+et*cosh(u))/x0;z=1/r1
-    z=1/r1
-    rt=(et*sinh(u)/(-1+et*cosh(u)))*sqrt(x0)
-    phit=((et**2-1)**(1/2)/(-1+et*cosh(u))**2)*x0**(3/2)
-    X=r1*cos(phi)
-    Y=r1*sin(phi)
+    # phi=phiv(η,et,u,x0,order=3)
+    # r1=(-1+et*cosh(u))/x0;z=1/r1
+    # z=1/r1
+    # rt=(et*sinh(u)/(-1+et*cosh(u)))*sqrt(x0)
+    # phit=((et**2-1)**(1/2)/(-1+et*cosh(u))**2)*x0**(3/2)
+
+    phi  = phiv(η,et,u,x0,delta=delta,chi_A=chi_A, chi_S=chi_S)
+    r1   = rx(η,et,u,x0,order=3,delta=delta,chi_A=chi_A,chi_S=chi_S)
+    z    = 1/r1
+    rt   = rtx(η,et,u,x0,order=3)
+    phit = phitx(η,et,u,x0,order=3,delta=delta, chi_A=chi_A,chi_S=chi_S)
+
+    # X=r1*cos(phi)
+    # Y=r1*sin(phi)
     
     hp_arr=(-η*(sin(inc)**2*(z-r1**2*phit**2-rt**2)+(1+cos(inc)**2)*((z
         +r1**2*phit**2-rt**2)*cos(2*phi)+2*r1*rt*phit*sin(2*phi))))
     hx_arr=(-2*η*cos(inc)*((z+r1**2*phit**2-rt**2)*sin(2*phi)-2*r1*rt*phit*cos(2*phi)))
+
     Hp=hp_arr/scale; Hx=hx_arr/scale
     
     

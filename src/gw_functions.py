@@ -15,7 +15,7 @@ def PNx(pn0,pn1,pn2,pn3,initial,x,order):
         s+=pn[i]*x**(initial+i)
     return s
 
-def rx(eta,et,u,x,order):
+def rx(eta,et,u,x,order,delta=0,chi_A=0,chi_S=0):
     
     a0=(-1+et*cosh(u))
 
@@ -23,13 +23,16 @@ def rx(eta,et,u,x,order):
     a2=((-216+534*eta+8*eta**2-2*et**2*(4*eta**2+15*eta+36)+et*(et**2-1)*(35*eta**2-
     231*eta+72)*cosh(u))/(72*et**2-72))
 
+    ### NOTE: ADD 1.5PN
+    a15=2*(delta*chi_A-(eta-1)*chi_S)/sqrt(et**2 - 1)
+
     a3=(1/181440/(et**2-1)**2*(-4233600+12143736*eta-348705*pi**2*eta-761040*eta
     **2+4480*eta**3+280*et**4*(16*eta**3+90*eta**2-81*eta+432)-et**2*(3144960+81*(1435*pi
     **2-134336)*eta+3437280*eta**2+8960*eta**3)+140*et*(et**2-1)**2*(49*eta**3-3933*eta**2
     +7047*eta-864)*cosh(u)))
 
 
-    return PNx(a0,a1,a2,a3,-1,x,order)
+    return PNx(a0,a1,a2,a3,-1,x,order) + a15*x**(1/2)
 
 
 def rtx(eta,et,u,x,order):
@@ -55,8 +58,11 @@ def rtx(eta,et,u,x,order):
 
 
 
-def phitx(eta,et,u,x,order):
+def phitx(eta,et,u,x,order,delta=0,chi_A=0,chi_S=0):
     a0=(et**2-1)**(1/2)/(-1+et*cosh(u))**2
+    ##NOTE: add 1.5PN
+    a15=(4*delta*chi_A-2*(-2+eta)*chi_S+et*cosh(u)*(-2*delta*chi_A+2*(eta-1)*chi_S)-2*et**2*(delta*chi_A+chi_S))/((et*cosh(u)-1)**3 * (et**2-1))
+
     a1=((et*(-1+eta)*cosh(u)-3+(-eta+4)*et**2)/(et**2-1)**(1/2)/(-1+et*cosh(u))**3)
     a2=(1/12*(-14*et**3*((eta**2+5*eta-3/7)*et**2-4/7*eta**2+1/7*eta-18/7)*cosh(u)**3+17*et**
     2*((48/17+eta**2-eta)*et**4+(-66/17-4/17*eta**2+8*eta)*et**2-108/17+5/17*eta**2+97/
@@ -86,7 +92,7 @@ def phitx(eta,et,u,x,order):
     355040*eta**2+(34440*pi**2-1401544)*eta)*et**4+(-3360+2240*eta**3-404320*eta**2+(-
     21525*pi**2+1368504)*eta)*et**2-21525*pi**2*eta-13440*eta**2+810320*eta-504000)/(et
     **2-1)**(5/2)/(-1+et*cosh(u))**7)
-    return PNx(a0,a1,a2,a3,3/2,x,order)
+    return PNx(a0,a1,a2,a3,3/2,x,order)+ a15*x**3
 
 def vH(eta,et,u,x,order):
     ephi=ephiet(eta,et,x,order)*et
@@ -101,23 +107,64 @@ def ephiet(eta,et,x,order):
     eta**2+11233*eta-12288)))
     return PNx(a0,a1,a2,a3,0,x,order)
 
-def phiv(eta,et,u,x,order):
-    v=vH(eta,et,u,x,order)
-    a0=v
-    a1=3*v/(et**2-1)
-    a2=(-1/32*(8*v*(-78+28*eta+et**2*(-51+26*eta))+4*et**2*(3*eta**2-19*eta-1)*sin(2*v
-    )+et**3*eta*(-1+3*eta)*sin(3*v))/(et**2-1)**2)
 
-    a3=(1/26880/(et**2-1)**3*(et**2*(84000+1180064*eta-30135*pi**2*eta-442400*eta**2+
-    10080*eta**3+280*et**2*(93*eta**3-781*eta**2+886*eta+24))*sin(2*v)+et**3*eta*(113208
-    -4305*pi**2-101780*eta+7140*eta**2+35*et**2*(129*eta**2-137*eta+33))*sin(3*v)+210*v
-    *(16*et**4*(65*eta**2-110*eta+156)+18240+4*(123*pi**2-6344)*eta+896*eta**2+et**2*(
-    28128+3*(41*pi**2-9280)*eta+5120*eta**2))+140*et**4*eta*(15*eta**2-57*eta+82)*sin(4
-    *v)+105*et**5*eta*(5*eta**2-5*eta+1)*sin(5*v)))
-    return PNx(a0,a1,a2,a3,0,x,order)
+# NOTE: old
+# def phiv(eta,et,u,x,order,delta=0,chi_A=0,chi_S=0):
+#     v=vH(eta,et,u,x,order)
+#     a0=v
+#     a1=3*v/(et**2-1)
+
+#     ##NOTE: add 1.5PN
+#     a15= 2*v*((eta-2)*chi_S-2*delta*chi_A)/(et**2-1)**(3/2)
+
+#     a2=(-1/32*(8*v*(-78+28*eta+et**2*(-51+26*eta))+4*et**2*(3*eta**2-19*eta-1)*sin(2*v
+#     )+et**3*eta*(-1+3*eta)*sin(3*v))/(et**2-1)**2)
+
+#     a3=(1/26880/(et**2-1)**3*(et**2*(84000+1180064*eta-30135*pi**2*eta-442400*eta**2+
+#     10080*eta**3+280*et**2*(93*eta**3-781*eta**2+886*eta+24))*sin(2*v)+et**3*eta*(113208
+#     -4305*pi**2-101780*eta+7140*eta**2+35*et**2*(129*eta**2-137*eta+33))*sin(3*v)+210*v
+#     *(16*et**4*(65*eta**2-110*eta+156)+18240+4*(123*pi**2-6344)*eta+896*eta**2+et**2*(
+#     28128+3*(41*pi**2-9280)*eta+5120*eta**2))+140*et**4*eta*(15*eta**2-57*eta+82)*sin(4
+#     *v)+105*et**5*eta*(5*eta**2-5*eta+1)*sin(5*v)))
+#     return PNx(a0,a1,a2,a3,0,x,order) + a15*x**(3/2)
 
 
+def phiv(eta,et,u,x,delta=0,chi_A=0,chi_S=0):
+    
+    # NOTE: FROM ephi.nb
 
+    ephi = ephiet(eta, et, x, 3) * et
+    tt = sqrt((ephi+1)/(ephi-1)) / sqrt((et+1)/(et-1))
+    tt15 = -(3+et**2)*(2*delta*chi_A + 2*chi_S - eta*chi_S) * x**(3/2) / (4*et*(et**2-1)**(3/2))
+
+    eterm = sqrt((et+1)/(et-1)) * (tt + tt15)
+
+    # this one is definition
+    v = 2*arctan(eterm * tanh(u/2))
+
+    # NOTE: from mj's l_terms.nb 
+    denom = (et**2-1)**3
+    l0 = ((-128 + 384*et**2 - 384*et**4 + 128*et**6)
+          + (384 - 768*et**2 + 384*et**4)*x
+          + (-2496 + 864*et**2 + 1632*et**4
+             + (896 - 64*et**2 - 832*et**4)*eta)*x**2
+          + (18240 + 28128*et**2 + 2496*et**4
+             + (-25376 - 27840*et**2 - 1760*et**4)*eta
+             + (896 + 5120*et**2 + 1040*et**4)*eta**2
+             + (492 + 123*et**2)*eta*pi**2)*x**3
+         ) / (128*denom) +  x**(3/2) * (-4*(delta*chi_A + chi_S) + 2*v*chi_S) / (et**2-1)**(3/2)
+    l1 = (et**2*((-3360 + 3360*et**2) + (-63840 + 63840*et**2)*eta + (10080 - 10080*et**2)*eta**2)*x**2
+            + et**2*(73920 + 6720*et**2 + (988544 + 248080*et**2)*eta
+                     + (-412160 - 218680*et**2)*eta**2 + (10080 + 26040*et**2)*eta**3
+                     - 30135*eta*pi**2)*x**3
+           ) / (26880*denom)
+    l2 = (et**3*eta*((-840 + 840*et**2) + (2520 - 2520*et**2)*eta)*x**2
+            + et**3*eta*(110688 + 1155*et**2 + (-94220 - 4795*et**2)*eta
+                         + (7140 + 4515*et**2)*eta**2 - 4305*pi**2)*x**3
+           ) / (26880*denom)
+    l3 =  et**4*eta*(82 - 57*eta + 15*eta**2)*x**3 / (192*(et**2-1)**3)
+    l4 = et**5*eta*(1 - 5*eta + 5*eta**2)*x**3 / (256*(et**2-1)**3)
+    return l0*(v + l1*sin(2*v) + l2*sin(3*v) + l3*sin(4*v) + l4*sin(5*v))
 
 
 
